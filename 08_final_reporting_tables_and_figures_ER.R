@@ -65,13 +65,20 @@ library(ggplot2)
 # 2. Define file locations
 ############################
 
-input_meta_folder <- "data/derived/meta_models"
-input_sensitivity_folder <- "data/derived/sensitivity_ER"
-input_moderators_folder <- "data/derived/moderators_ER"
-input_association_folder <- "data/derived/er_md_association"
-input_rob_folder <- "data/derived/risk_of_bias_ER"
+# --- Data-integrity exclusion toggle (must match the value used for scripts 03-07) ---
+# TRUE  = primary analysis excluding Atta (6) and Hosseinian (30) -> 59 studies
+# FALSE = sensitivity analysis including all 61 studies
+if (!exists("EXCLUDE_INTEGRITY")) EXCLUDE_INTEGRITY <- TRUE
+if (!exists("studies_excluded"))  studies_excluded  <- c(6, 30)
+run_suffix <- if (EXCLUDE_INTEGRITY) "_primary59" else "_all61"
 
-output_folder <- "data/derived/final_reporting_ER"
+input_meta_folder <- paste0("data/derived/meta_models", run_suffix)
+input_sensitivity_folder <- paste0("data/derived/sensitivity_ER", run_suffix)
+input_moderators_folder <- paste0("data/derived/moderators_ER", run_suffix)
+input_association_folder <- paste0("data/derived/er_md_association", run_suffix)
+input_rob_folder <- paste0("data/derived/risk_of_bias_ER", run_suffix)
+
+output_folder <- paste0("data/derived/final_reporting_ER", run_suffix)
 
 if (!dir.exists(output_folder)) {
   dir.create(output_folder, recursive = TRUE)
@@ -529,10 +536,14 @@ library(dplyr)
 # 1. Prepare data for plotting
 # ----------------------------------
 
+# Author-year labels for the forest plot (one row per Study_ID)
+study_labels <- readr::read_csv("study_labels.csv", show_col_types = FALSE)
+
 forest_dat <- study_level_er %>%
+  left_join(study_labels, by = "Study_ID") %>%
   filter(yi_agg <= 3) %>%   # exclude extreme displayed studies only
   mutate(
-    study_label = paste0("Study ", Study_ID),
+    study_label = ifelse(is.na(Label), paste0("Study ", Study_ID), Label),
     weight_raw = 1 / vi_agg
   ) %>%
   arrange(desc(yi_agg)) %>%
@@ -587,7 +598,7 @@ forest(
   vi = forest_dat$vi_agg,
   slab = forest_dat$study_label,
   rows = rows_studies,
-  xlim = c(-1.95, 4.00),
+  xlim = c(-2.60, 4.00),
   alim = c(-1.5, 3.8),
   at = c(-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3.0, 3.5),
   psize = psize_vals,
@@ -606,20 +617,26 @@ forest(
 # 4. Add pooled effect diamond
 # ----------------------------------
 
+# Build a dynamic pooled-effect label so the value shows on the plot
+pooled_label <- sprintf("Pooled effect: g = %.2f [%.2f, %.2f]",
+                        pooled_est, pooled_ci_lb, pooled_ci_ub)
+
 addpoly(
   x = pooled_est,
   ci.lb = pooled_ci_lb,
   ci.ub = pooled_ci_ub,
   row = 1,
-  mlab = "Pooled effect",
+  mlab = pooled_label,
   col = "black",
   border = "black",
   cex = 0.8
 )
 
 # ---------------------------------------------------------
-# 5. Optional footnote
+# 5. Separator line between studies and the pooled effect
 # ---------------------------------------------------------
+
+abline(h = 1.5, lwd = 0.8)
 
 dev.off()
 
@@ -752,8 +769,6 @@ save(
   final_er_md_summary,
   final_er_md_correlations,
   final_er_md_sensitivity,
-  forest_plot_dat,
-  forest_plot_pub,
   key_findings_table,
   file = file.path(output_folder, "final_reporting_ER.RData")
 )

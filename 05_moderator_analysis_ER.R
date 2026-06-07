@@ -70,7 +70,14 @@ library(clubSandwich)
 ############################
 
 input_file <- "data/derived/effect_sizes/er_meta_effect_sizes_r50.csv"
-output_folder <- "data/derived/moderators_ER"
+# --- Data-integrity exclusion toggle (set EXCLUDE_INTEGRITY in the console before sourcing) ---
+# TRUE  = primary analysis excluding Atta (6) and Hosseinian (30) -> 59 studies
+# FALSE = sensitivity analysis including all 61 studies
+if (!exists("EXCLUDE_INTEGRITY")) EXCLUDE_INTEGRITY <- TRUE
+if (!exists("studies_excluded"))  studies_excluded  <- c(6, 30)
+run_suffix <- if (EXCLUDE_INTEGRITY) "_primary59" else "_all61"
+
+output_folder <- paste0("data/derived/moderators_ER", run_suffix)
 
 if (!dir.exists(output_folder)) {
   dir.create(output_folder, recursive = TRUE)
@@ -125,6 +132,7 @@ cat("All required columns are present.\n")
 
 dat_er <- dat %>%
   filter(analysis_set == "ER") %>%
+  { if (EXCLUDE_INTEGRITY) dplyr::filter(., !(Study_ID %in% studies_excluded)) else . } %>%
   mutate(
     Study_ID = as.factor(Study_ID),
     Comparison_ID = as.factor(Comparison_ID),
@@ -1252,8 +1260,8 @@ cat("====================================================\n")
 library(dplyr)
 library(stringr)
 
-final_table_pub <- final_moderator_table_all %>%
-  
+final_table_pub <- final_moderator_table %>%
+
   # Rename columns
   rename(
     Moderator = label,

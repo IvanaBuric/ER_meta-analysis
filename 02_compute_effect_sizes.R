@@ -463,15 +463,13 @@ inspect_effect <- function(effect_id) {
 
 
 ############################################################
-# Loop through extreme effects automatically
+# Inspect extreme effects (optional, manual)
 ############################################################
-
-for (id in extreme_es$Effect_ID) {
-  
-  inspect_effect(id)
-  
-  readline(prompt = "Press [enter] to inspect next effect size...")
-}
+# NOTE: The previous version used a readline() step-through loop here,
+# which blocks execution and breaks sourced / non-interactive runs
+# (later lines get captured by the prompt). It has been removed.
+# All extreme effects are saved in extreme_effect_sizes_r50.csv.
+# To inspect one manually, call e.g.:  inspect_effect(1)
 
 ###########################################################
 # 15. Formal outlier and influence screening

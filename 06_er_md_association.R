@@ -72,7 +72,14 @@ library(ggplot2)
 ############################
 
 input_file <- "data/derived/effect_sizes/er_meta_effect_sizes_r50.csv"
-output_folder <- "data/derived/er_md_association"
+# --- Data-integrity exclusion toggle (set EXCLUDE_INTEGRITY in the console before sourcing) ---
+# TRUE  = primary analysis excluding Atta (6) and Hosseinian (30) -> 59 studies
+# FALSE = sensitivity analysis including all 61 studies
+if (!exists("EXCLUDE_INTEGRITY")) EXCLUDE_INTEGRITY <- TRUE
+if (!exists("studies_excluded"))  studies_excluded  <- c(6, 30)
+run_suffix <- if (EXCLUDE_INTEGRITY) "_primary59" else "_all61"
+
+output_folder <- paste0("data/derived/er_md_association", run_suffix)
 
 if (!dir.exists(output_folder)) {
   dir.create(output_folder, recursive = TRUE)
@@ -127,6 +134,11 @@ dat <- dat %>%
     Study_ID = as.factor(Study_ID),
     Comparison_ID = as.factor(Comparison_ID)
   )
+
+# Drop data-integrity exclusions (Atta, Hosseinian) for the primary run
+if (EXCLUDE_INTEGRITY) {
+  dat <- dplyr::filter(dat, !(as.numeric(as.character(Study_ID)) %in% studies_excluded))
+}
 
 if (sum(is.na(dat$yi)) > 0) {
   stop("Dataset contains missing yi values.")
