@@ -59,7 +59,7 @@ library(tibble)
 #####################################
 
 # Input file: cleaned Excel dataset
-input_file <- "data/Merged ER META Data Extraction_CLEAN.xlsx"
+input_file <- "Merged ER META Data Extraction_CLEAN.xlsx"
 
 # Output folder for files created by this script
 output_folder <- "data/derived"

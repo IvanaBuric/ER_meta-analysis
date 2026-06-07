@@ -7,7 +7,7 @@ The repository is organised so that a user can download it, open it in RStudio, 
 ## What is included in this repository
 
 - 9 R scripts (`00`–`08`) for data preparation, analysis, and reporting
-- the cleaned dataset used for the analyses (`data/Merged ER META Data Extraction_CLEAN.xlsx`)
+- the cleaned dataset used for the analyses (`Merged ER META Data Extraction_CLEAN.xlsx`)
 - `study_labels.csv`, used by script `08` to label studies in the forest plot
 - an `.Rproj` file for opening the project in RStudio
 
@@ -41,7 +41,7 @@ You do not need extensive R experience. The main steps are simply to open the pr
 
 ## Important note about the folder structure
 
-You do not need to create any folders manually. After downloading this repository, keep all files exactly as they are. Do not rename files, move scripts into different folders, or change the location of the dataset, as this may prevent the scripts from running correctly. In particular, the dataset must remain at `data/Merged ER META Data Extraction_CLEAN.xlsx`, and `study_labels.csv` must remain in the project root.
+You do not need to create any folders manually. After downloading this repository, keep all files exactly as they are. Do not rename files, move scripts into different folders, or change the location of the dataset, as this may prevent the scripts from running correctly. In particular, the dataset must remain at `Merged ER META Data Extraction_CLEAN.xlsx`, and `study_labels.csv` must remain in the project root.
 
 ## How to reproduce the analyses
 
@@ -97,7 +97,7 @@ Do not leave the scripts running unattended, as some steps may require user inpu
 
 - **The scripts do not run.** Check that you opened the project by clicking the `.Rproj` file, rather than opening individual scripts directly.
 - **A package is missing.** Run `00_setup.R` again and allow time for package installation to finish.
-- **A file cannot be found.** Make sure you have kept the repository structure unchanged, including `data/Merged ER META Data Extraction_CLEAN.xlsx` and `study_labels.csv`.
+- **A file cannot be found.** Make sure you have kept the repository structure unchanged, including `Merged ER META Data Extraction_CLEAN.xlsx` and `study_labels.csv`.
 - **An error appears in a later script.** Make sure all earlier scripts were run successfully and in the correct order.
 
 ## Reproducibility note
